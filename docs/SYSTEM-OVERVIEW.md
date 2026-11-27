@@ -7,7 +7,7 @@ Reference for System Analysis & Design documentation (modules, actors, processes
 | Actor | Description |
 |---|---|
 | Household user | Plans meals, scans the pantry, shops, and cooks |
-| AI vision service (external) | Google Gemini API; identifies food items in a photo |
+| AI vision service (external) | Google Gemini, OpenAI or Anthropic Claude API (configurable, with automatic fallback); identifies food items in a photo |
 
 ## Modules
 
@@ -29,7 +29,7 @@ The target per meal is (remaining budget × 0.92) ÷ remaining meals. The 8% buf
 Output: weekly plan → triggers P4.
 
 **P2 Scan pantry**
-Photo → compressed in the browser (max 1024 px JPEG) → `POST /api/scan` → Gemini returns structured JSON → server validates it → user reviews, edits and adds expiry dates → items matched to catalog ingredients (English/Filipino names) → saved to pantry → triggers P4.
+Photo → compressed in the browser (max 1024 px JPEG) → `POST /api/scan` → AI provider (Gemini, OpenAI or Claude; next one tried on failure) returns structured JSON → server validates it → user reviews, edits and adds expiry dates → items matched to catalog ingredients (English/Filipino names) → saved to pantry → triggers P4.
 
 **P3 Cook meal**
 User marks a meal cooked → ingredients deducted from pantry (soonest-to-expire first) → meal flagged cooked → triggers P4.
@@ -98,8 +98,8 @@ User ticks items bought and enters the actual price → spent = actual price (or
 
 | Endpoint | Method | Request | Response |
 |---|---|---|---|
-| `/api/scan` | POST | `{ image: base64, mimeType }` | `{ items: [{ name, qty, unit, category, confidence }] }` or `{ error }` |
-| `/api/health` | GET | — | `{ ok, model, hasApiKey }` |
+| `/api/scan` | POST | `{ image: base64, mimeType }` | `{ items: [{ name, qty, unit, category, confidence }], provider, model }` or `{ error, detail }` |
+| `/api/health` | GET | `?test=1` (optional) | `{ ok, tryOrder, providers, test? }`: per-provider setup and live test result |
 
 ## Scope and limitations (suggested wording)
 

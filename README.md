@@ -29,14 +29,26 @@ Because the pages use ES modules, they must be served over http, not opened by d
 
 The AI scan needs the serverless function in `api/`, which only runs under Vercel.
 
-1. **Get a free Gemini API key** at [Google AI Studio](https://aistudio.google.com) → *Get API key*.
+1. **Get an AI API key.** You need at least one (see *AI providers* below). The free option is Gemini at [Google AI Studio](https://aistudio.google.com) → *Get API key*.
 2. **Install the Vercel CLI:** `npm i -g vercel`
 3. **Add your key:** copy `.env.example` to `.env.local` and paste your key. Never commit `.env.local`; `.gitignore` already excludes it.
 4. **Run locally:** `vercel dev` → open `http://localhost:3000`
-5. **Check the API:** open `http://localhost:3000/api/health` → you should see `"hasApiKey": true`.
+5. **Check the API:** open `http://localhost:3000/api/health?test=1`. It runs a real test scan with each key and shows `"works": true`, or the exact error.
 6. **Deploy:** `vercel --prod`, then in the Vercel dashboard add `GEMINI_API_KEY` under *Project → Settings → Environment Variables* and redeploy.
 
-If the scan says the model was not found, set `GEMINI_MODEL` in `.env.local` to a current Gemini Flash model name from Google's docs.
+## AI providers
+
+The scan works with any of these. Set one or more keys; if the first one fails, the next is tried automatically.
+
+| Provider | Env variable | Cost | Default model |
+|---|---|---|---|
+| Google Gemini | `GEMINI_API_KEY` | Free tier available | a current Gemini Flash model (auto-detected if the default name isn't available) |
+| OpenAI | `OPENAI_API_KEY` | Paid, needs billing set up | `gpt-5.4-mini` |
+| Anthropic Claude | `ANTHROPIC_API_KEY` | Paid, needs billing set up | `claude-haiku-5-5` |
+
+- `AI_PROVIDER=openai` (or `anthropic` / `gemini`) chooses which to try first.
+- `GEMINI_MODEL`, `OPENAI_MODEL`, `ANTHROPIC_MODEL` override the model if a name changes.
+- **Debugging:** open `/api/health?test=1` on your site. It shows each provider's exact result, e.g. `"API key not valid"` or `"quota exceeded"`. The scan error in the app also shows these details.
 
 ## Project structure
 
@@ -46,8 +58,9 @@ tipidulam/
 ├── css/styles.css
 ├── images/recipes/           ← put dish photos here (see its README)
 ├── api/                      ← serverless functions (Vercel)
-│   ├── scan.js               POST /api/scan   photo → item list (Gemini)
-│   └── health.js             GET  /api/health is the API configured?
+│   ├── _lib/ai.js            Gemini / OpenAI / Claude vision + automatic fallback
+│   ├── scan.js               POST /api/scan   photo → item list
+│   └── health.js             GET  /api/health(?test=1) setup check + live test
 ├── js/
 │   ├── core/                 ← NO DOM CODE: port this folder to Angular as services
 │   │   ├── data/             ingredients.js (catalog + sample prices), recipes.js
@@ -90,5 +103,7 @@ Add an entry to `RECIPES` in `js/core/data/recipes.js` (give it a `group` for th
 |---|---|---|
 | "Load failed" / "Failed to fetch" / "can't run the AI scan" | The page was opened from Live Server, GitHub Pages, a file, or another computer's local address, so there's no API to call | Open your **Vercel link** (or `vercel dev` at `localhost:3000`). Use `?mock=1` for demo mode |
 | "Could not reach the scan service" | Internet dropped, or the Vercel deployment isn't working | Check your connection; open `/api/health` on your site |
-| "Server is missing GEMINI_API_KEY" | Key not set in Vercel | Add it under Settings → Environment Variables, then **redeploy** |
-| "Model … was not found" | Model name changed | Set `GEMINI_MODEL` to a current Gemini Flash model |
+| "No AI API key is set" | Key not set in Vercel | Add it under Settings → Environment Variables, then **redeploy** |
+| "API key was rejected" | Wrong, deleted or restricted key | Make a new key and replace it in Vercel, then redeploy |
+| "busy or your free quota ran out" | Free-tier limit reached | Wait a minute, or add a second provider's key as a backup |
+| Anything else | | Open `/api/health?test=1`; it shows exactly what each AI service replied |

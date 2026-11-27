@@ -40,7 +40,10 @@ export async function scanImage(image) {
   }
   if (res.status === 413) throw new Error('The photo is too large. Try again with a smaller photo.');
   if (res.status === 504) throw new Error('The scan took too long. Please try again.');
-  if (!res.ok) throw new Error(body.error || `Scan failed (error ${res.status}). Open /api/health on your site to check the setup.`);
+  if (!res.ok) {
+    const base = body.error || `Scan failed (error ${res.status}).`;
+    throw new Error(body.detail ? `${base} Details: ${body.detail}` : `${base} Open /api/health?test=1 on your site to check the setup.`);
+  }
   return body.items || [];
 }
 
