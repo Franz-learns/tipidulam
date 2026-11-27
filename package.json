@@ -1,6 +1,0 @@
-{
-  "name": "tipidulam",
-  "private": true,
-  "type": "module",
-  "engines": { "node": ">=20" }
-}
