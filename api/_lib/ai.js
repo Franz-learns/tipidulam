@@ -24,7 +24,8 @@ Rules:
 - category: one of ${CATEGORIES.join(', ')}.
 - confidence: high, medium, or low.
 - Do not guess what is inside closed, opaque containers; list each as "unknown container" with category "other" and confidence "low".
-- Do not list non-food items. If there is no food, return an empty list.`;
+- Do not list non-food items. If there is no food, return an empty list.
+- List at most 40 items; group identical items into one row with a qty. Answer quickly.`;
 
 // Standard JSON Schema (OpenAI, Anthropic)
 const ITEM_SCHEMA = {
@@ -110,7 +111,10 @@ async function readError(r) {
   }
 }
 
-async function fetchWithTimeout(url, opts, ms = 25000) {
+// Per-request limit. Vercel allows the function 60 s (see vercel.json), so keep this under that.
+const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS) || 50000;
+
+async function fetchWithTimeout(url, opts, ms = AI_TIMEOUT_MS) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
@@ -139,15 +143,37 @@ async function discoverGeminiModel(key) {
   return usable[0];
 }
 
+// Newer Gemini models "think" before answering, which makes busy photos slow.
+// Listing groceries doesn't need deep reasoning, so ask for minimal thinking.
+// If a model rejects that setting, we remember and send requests without it.
+let geminiThinkingSupported = true;
+
+function geminiBody(image, mimeType, withThinking) {
+  const generationConfig = { responseMimeType: 'application/json', responseSchema: GEMINI_SCHEMA, temperature: 0.2 };
+  if (withThinking) generationConfig.thinkingConfig = { thinkingLevel: 'low' };
+  return JSON.stringify({
+    contents: [{ parts: [{ inline_data: { mime_type: mimeType, data: image } }, { text: PROMPT }] }],
+    generationConfig
+  });
+}
+
 async function geminiCall(key, model, image, mimeType) {
-  return fetchWithTimeout(`${GEMINI_BASE}/models/${encodeURIComponent(model)}:generateContent`, {
+  const url = `${GEMINI_BASE}/models/${encodeURIComponent(model)}:generateContent`;
+  const send = (withThinking) => fetchWithTimeout(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-    body: JSON.stringify({
-      contents: [{ parts: [{ inline_data: { mime_type: mimeType, data: image } }, { text: PROMPT }] }],
-      generationConfig: { responseMimeType: 'application/json', responseSchema: GEMINI_SCHEMA, temperature: 0.2 }
-    })
+    body: geminiBody(image, mimeType, withThinking)
   });
+  if (!geminiThinkingSupported) return send(false);
+  const r = await send(true);
+  if (r.status === 400) {
+    const text = await r.clone().text().catch(() => '');
+    if (/thinking/i.test(text)) {
+      geminiThinkingSupported = false;
+      return send(false);
+    }
+  }
+  return r;
 }
 
 async function scanGemini(image, mimeType) {
@@ -272,7 +298,7 @@ export async function scanWithFallback(image, mimeType, { only } = {}) {
       const result = await PROVIDERS[id].run(image, mimeType);
       return { ...result, provider: id, errors };
     } catch (err) {
-      const message = err.name === 'AbortError' ? 'Timed out.' : err.message;
+      const message = err.name === 'AbortError' ? `Timed out after ${Math.round(AI_TIMEOUT_MS / 1000)} s.` : err.message;
       console.error(`[scan] ${id} failed`, err.status || '', message);
       errors.push({ provider: id, label: PROVIDERS[id].label, status: err.status || 0, message });
     }

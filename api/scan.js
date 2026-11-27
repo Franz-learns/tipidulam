@@ -22,6 +22,7 @@ function friendly(err) {
     return 'The AI API key was rejected. Check that the key in Vercel is correct and active, then redeploy.';
   }
   if (/billing|credit|insufficient/.test(msg)) return 'The AI account has no billing or credits set up.';
+  if (/timed out/.test(msg)) return 'The AI took too long on this photo. Try again, or take a closer photo of one or two shelves.';
   return 'The photo could not be scanned. Please try again.';
 }
 

@@ -24,11 +24,11 @@ export async function scanImage(image) {
   const payload = JSON.stringify({ image: image.base64, mimeType: image.mimeType });
   let res;
   try {
-    res = await postWithTimeout('/api/scan', payload, 45000);
+    res = await postWithTimeout('/api/scan', payload, 75000);
   } catch (err) {
     // One quick retry for flaky mobile data, then explain what's wrong.
     if (err.name !== 'AbortError') {
-      try { res = await postWithTimeout('/api/scan', payload, 45000); } catch (err2) { err = err2; }
+      try { res = await postWithTimeout('/api/scan', payload, 75000); } catch (err2) { err = err2; }
     }
     if (!res) throw new Error(explainNetworkError(err));
   }
@@ -59,7 +59,7 @@ async function postWithTimeout(url, body, ms) {
 
 // Turns Safari's "Load failed" / Chrome's "Failed to fetch" into something actionable.
 function explainNetworkError(err) {
-  if (err?.name === 'AbortError') return 'The scan took too long (over 45 seconds). Check your internet connection and try again.';
+  if (err?.name === 'AbortError') return 'The scan took too long (over 75 seconds). Check your internet connection and try again, or take a closer photo of fewer shelves.';
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return 'You appear to be offline. Connect to the internet and try again.';
   const host = location.hostname;
   if (location.protocol === 'file:') return 'Open the site through a web server, not by double-clicking the file. Use your Vercel link, or add ?mock=1 for demo mode.';
