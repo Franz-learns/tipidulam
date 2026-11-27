@@ -2,63 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
   <title>Pantry & Scan · TipidUlam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Rubik:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
 <header id="app-nav"></header>
-<main class="container py-4" style="max-width: 1100px;">
-  <h1 class="h3 mb-1">Pantry &amp; Scan</h1>
-  <p class="text-secondary mb-4">Take a photo of your ref or pantry. We'll list what's inside so the planner and grocery list use it first.</p>
+<main class="app-main"><div class="app-container">
+  <div class="page-head">
+    <span class="eyebrow"><span data-icon="refrigerator" data-size="14"></span>Your stock</span>
+    <h1>Pantry &amp; Scan</h1>
+    <p>Snap a photo of your ref or pantry. We'll list what's inside so your plan and grocery list use it first.</p>
+  </div>
 
-  <section class="card mb-4"><div class="card-body">
-    <h2 class="h5">1. Take a photo</h2>
-    <input id="photoInput" class="form-control mb-3" type="file" accept="image/*" capture="environment">
-    <img id="preview" class="w-100 rounded mb-3 d-none" alt="Photo preview">
-    <div class="d-flex gap-2 flex-wrap">
-      <button id="scanBtn" class="btn btn-tipid" disabled>
-        <span id="scanSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>Scan photo
-      </button>
-      <button id="manualBtn" class="btn btn-outline-secondary">Add items manually</button>
+  <div class="row g-3 g-lg-4 mb-4">
+    <div class="col-lg-7">
+      <section class="card surface-pad">
+        <h2 class="section-title"><span class="chip-icon sm"><span data-icon="camera"></span></span>Scan your ref</h2>
+        <label class="dropzone" id="dropzone" for="photoInput">
+          <span class="chip-icon"><span data-icon="image-up" data-size="26"></span></span>
+          <strong>Take or upload a photo</strong>
+          <span class="small text-secondary">Bright, close photos work best. JPEG or PNG.</span>
+        </label>
+        <input id="photoInput" class="visually-hidden" type="file" accept="image/*" capture="environment">
+        <img id="preview" class="mt-3 d-none" alt="Photo preview">
+        <div class="d-flex gap-2 flex-wrap mt-3">
+          <button id="scanBtn" class="btn btn-tipid" disabled>
+            <span id="scanSpinner" class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+            <span data-icon="scan-line"></span><span id="scanLabel">Scan photo</span>
+          </button>
+          <button id="manualBtn" class="btn btn-ghost"><span data-icon="plus"></span>Add manually</button>
+        </div>
+        <div id="scanError" class="alert alert-danger mt-3 mb-0 d-none" role="alert"></div>
+      </section>
     </div>
-    <div id="scanError" class="alert alert-danger mt-3 d-none" role="alert"></div>
-  </div></section>
+    <div class="col-lg-5">
+      <section class="card surface-pad h-100">
+        <h2 class="section-title"><span class="chip-icon sm amber"><span data-icon="sparkles"></span></span>What you can cook</h2>
+        <div id="suggestList" class="d-grid gap-2"></div>
+      </section>
+    </div>
+  </div>
 
-  <section id="confirmSection" class="card mb-4 d-none"><div class="card-body">
-    <h2 class="h5">2. Check the items</h2>
-    <p class="small text-secondary">The scan can miss or misread items. Fix names and quantities, add expiry dates, and remove anything wrong. Yellow rows are low-confidence guesses.</p>
+  <section id="confirmSection" class="card surface-pad mb-4 d-none" aria-labelledby="confirmTitle">
+    <h2 class="section-title" id="confirmTitle"><span class="chip-icon sm"><span data-icon="list-checks"></span></span>Check the items</h2>
+    <p class="small text-secondary">The scan can miss or misread items. Fix names and quantities, add expiry dates, and remove anything wrong. <span class="tag tag-warning">Highlighted</span> rows are low-confidence guesses.</p>
     <div class="table-responsive">
       <table class="table align-middle confirm-table">
-        <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Category</th><th>Expiry</th><th></th></tr></thead>
+        <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Category</th><th>Expiry</th><th><span class="visually-hidden">Remove</span></th></tr></thead>
         <tbody id="confirmBody"></tbody>
       </table>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-      <button id="addRowBtn" class="btn btn-outline-secondary btn-sm">+ Add row</button>
-      <button id="saveBtn" class="btn btn-tipid btn-sm">Save to pantry</button>
+      <button id="addRowBtn" class="btn btn-ghost btn-sm"><span data-icon="plus"></span>Add row</button>
+      <button id="saveBtn" class="btn btn-tipid btn-sm"><span data-icon="check"></span>Save to pantry</button>
       <button id="cancelBtn" class="btn btn-link btn-sm">Cancel</button>
     </div>
-  </div></section>
+  </section>
 
-  <div class="row g-4">
-    <div class="col-lg-7">
-      <section class="card h-100"><div class="card-body">
-        <div class="d-flex justify-content-between align-items-center">
-          <h2 class="h5 mb-0">Your stock</h2><span id="invCount" class="badge text-bg-secondary"></span>
-        </div>
-        <ul id="inventoryList" class="list-group list-group-flush mt-3"></ul>
-      </div></section>
-    </div>
-    <div class="col-lg-5">
-      <section class="card h-100"><div class="card-body">
-        <h2 class="h5">What you can cook</h2>
-        <div id="suggestList" class="d-grid gap-2"></div>
-      </div></section>
-    </div>
-  </div>
-</main>
+  <section class="card surface-pad">
+    <h2 class="section-title"><span class="chip-icon sm"><span data-icon="refrigerator"></span></span>In your pantry<span id="invCount" class="tag count"></span></h2>
+    <ul id="inventoryList" class="row-list"></ul>
+  </section>
+</div></main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="js/pages/pantry.js"></script>
 </body>

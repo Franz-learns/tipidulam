@@ -2,42 +2,47 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
   <title>Grocery List · TipidUlam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Rubik:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
 <header id="app-nav"></header>
-<main class="container py-4" style="max-width: 1100px;">
-  <h1 class="h3 mb-1">Grocery List</h1>
-  <p class="text-secondary mb-4">Built from your meal plan, minus what's in your pantry. Tick items as you buy them and enter the real price to track spending.</p>
+<main class="app-main"><div class="app-container">
+  <div class="page-head">
+    <span class="eyebrow"><span data-icon="shopping-cart" data-size="14"></span>Pamamalengke</span>
+    <h1>Grocery List</h1>
+    <p>Built from your meal plan, minus what's already in your pantry. Tick items as you buy them and enter the real price to track spending.</p>
+  </div>
 
-  <section class="card mb-4"><div class="card-body">
-    <div id="groceryStats" class="row g-3 text-center"></div>
-  </div></section>
+  <div class="row g-3 mb-4" id="groceryStats"></div>
 
-  <section class="card mb-4"><div class="card-body">
-    <div class="d-flex flex-wrap gap-2 mb-3">
-      <button id="syncBtn" class="btn btn-sm btn-outline-secondary">Refresh from meal plan</button>
-      <button id="moveBtn" class="btn btn-sm btn-tipid">Put bought items in pantry</button>
-      <button id="copyBtn" class="btn btn-sm btn-outline-secondary">Copy list</button>
-      <button id="newWeekBtn" class="btn btn-sm btn-outline-danger ms-auto">Start new week</button>
+  <section class="card surface-pad mb-4">
+    <div class="toolbar mb-3">
+      <button id="syncBtn" class="btn btn-ghost btn-sm"><span data-icon="refresh-cw"></span>Refresh from plan</button>
+      <button id="moveBtn" class="btn btn-tipid btn-sm"><span data-icon="package-check"></span>Put bought items in pantry</button>
+      <button id="copyBtn" class="btn btn-ghost btn-sm"><span data-icon="copy"></span>Copy list</button>
+      <button id="newWeekBtn" class="btn btn-danger-ghost btn-sm ms-md-auto"><span data-icon="rotate-ccw"></span>Start new week</button>
     </div>
     <div id="groceryList"></div>
-  </div></section>
+  </section>
 
-  <section class="card"><div class="card-body">
-    <h2 class="h6">Add an item</h2>
+  <section class="card surface-pad">
+    <h2 class="section-title"><span class="chip-icon sm"><span data-icon="plus"></span></span>Add an item</h2>
     <form id="addForm" class="row g-2 align-items-end">
-      <div class="col-12 col-md-4"><input id="addName" class="form-control" placeholder="Item (e.g. kape)" required></div>
-      <div class="col-4 col-md-2"><input id="addQty" class="form-control" type="number" min="0.25" step="0.25" value="1"></div>
-      <div class="col-4 col-md-2"><select id="addUnit" class="form-select"></select></div>
-      <div class="col-4 col-md-2"><input id="addPrice" class="form-control" type="number" min="0" step="1" placeholder="₱ est."></div>
-      <div class="col-12 col-md-2 d-grid"><button class="btn btn-outline-primary" type="submit">Add</button></div>
+      <div class="col-12 col-md-4"><label class="form-label" for="addName">Item</label><input id="addName" class="form-control" placeholder="e.g. kape" required></div>
+      <div class="col-4 col-md-2"><label class="form-label" for="addQty">Qty</label><input id="addQty" class="form-control" type="number" min="0.25" step="0.25" value="1"></div>
+      <div class="col-4 col-md-2"><label class="form-label" for="addUnit">Unit</label><select id="addUnit" class="form-select"></select></div>
+      <div class="col-4 col-md-2"><label class="form-label" for="addPrice">Est. ₱</label><input id="addPrice" class="form-control" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="col-12 col-md-2 d-grid"><button class="btn btn-soft" type="submit"><span data-icon="plus"></span>Add</button></div>
     </form>
-  </div></section>
-</main>
+  </section>
+</div></main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="js/pages/grocery.js"></script>
 </body>

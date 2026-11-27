@@ -2,47 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#047857">
   <title>Dashboard · TipidUlam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&family=Rubik:wght@500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="css/styles.css" rel="stylesheet">
 </head>
 <body>
 <header id="app-nav"></header>
-<main class="container py-4" style="max-width: 1100px;">
-  <h1 class="h3 mb-1">Magandang araw!</h1>
-  <p class="text-secondary mb-4">Your week at a glance: budget, today's meals, and what needs cooking first.</p>
-
-  <section class="card mb-4"><div class="card-body">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2 class="h5 mb-0">This week's budget</h2>
-      <a class="btn btn-sm btn-outline-secondary" data-link href="settings.html">Edit</a>
-    </div>
-    <div id="budgetStats" class="row g-3 text-center"></div>
-    <div class="progress mt-3" style="height: 10px;" id="budgetBar"></div>
-    <p id="budgetNote" class="small text-secondary mt-2 mb-0"></p>
-  </div></section>
-
-  <div class="row g-4">
-    <div class="col-lg-6">
-      <section class="card h-100"><div class="card-body">
-        <h2 class="h5">Today's meals</h2>
-        <div id="todayMeals"></div>
-      </div></section>
-    </div>
-    <div class="col-lg-6">
-      <section class="card h-100"><div class="card-body">
-        <h2 class="h5">Use these first</h2>
-        <ul id="expiringList" class="list-group list-group-flush"></ul>
-      </div></section>
+<main class="app-main"><div class="app-container">
+  <div class="page-head page-head-row">
+    <div>
+      <span class="eyebrow" id="todayLabel"></span>
+      <h1>Magandang araw!</h1>
+      <p>Your week at a glance: budget, today's meals, and what to cook first.</p>
     </div>
   </div>
 
-  <section class="card mt-4"><div class="card-body">
-    <h2 class="h5">You can cook now</h2>
-    <div id="cookNow" class="row g-3"></div>
-  </div></section>
-</main>
+  <div class="row g-3 g-lg-4">
+    <div class="col-lg-7">
+      <section class="hero reveal" id="budgetHero" aria-label="This week's budget"></section>
+    </div>
+    <div class="col-lg-5">
+      <div class="row g-3 h-100" id="quickStats"></div>
+    </div>
+
+    <div class="col-lg-7">
+      <section class="card surface-pad h-100 reveal">
+        <h2 class="section-title"><span class="chip-icon sm"><span data-icon="calendar-days"></span></span>Today's meals</h2>
+        <div id="todayMeals"></div>
+      </section>
+    </div>
+    <div class="col-lg-5">
+      <section class="card surface-pad h-100 reveal">
+        <h2 class="section-title"><span class="chip-icon sm amber"><span data-icon="clock"></span></span>Use these first</h2>
+        <ul id="expiringList" class="row-list"></ul>
+      </section>
+    </div>
+
+    <div class="col-12">
+      <section class="card surface-pad reveal">
+        <h2 class="section-title"><span class="chip-icon sm"><span data-icon="sparkles"></span></span>You can cook now
+          <a class="btn btn-soft btn-sm count" data-link href="pantry.html"><span data-icon="camera"></span>Scan ref</a></h2>
+        <div id="cookNow" class="row g-3"></div>
+      </section>
+    </div>
+  </div>
+</div></main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="js/pages/dashboard.js"></script>
 </body>

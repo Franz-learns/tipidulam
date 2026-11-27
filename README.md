@@ -44,6 +44,7 @@ If the scan says the model was not found, set `GEMINI_MODEL` in `.env.local` to 
 tipidulam/
 ├── index.html, planner.html, recipes.html, pantry.html, grocery.html, settings.html
 ├── css/styles.css
+├── images/recipes/           ← put dish photos here (see its README)
 ├── api/                      ← serverless functions (Vercel)
 │   ├── scan.js               POST /api/scan   photo → item list (Gemini)
 │   └── health.js             GET  /api/health is the API configured?
@@ -59,6 +60,10 @@ tipidulam/
 
 **Moving to Angular later:** `js/core/engine/*` and `js/core/data/*` are plain functions with no browser dependencies, so you can copy them as-is. Wrap `js/core/services/*` in Angular `@Injectable` services. Only `storage.js` touches `localStorage`; swap it for HTTP calls when you add a database.
 
+## Recipe photos
+
+Drop a photo named after the recipe into `images/recipes/`, e.g. `images/recipes/sinigang-na-baboy.jpg`, and it appears on the recipe cards, the recipe popup, the meal plan and the dashboard. Dishes without a photo keep their icon, so you can add photos a few at a time. `images/recipes/README.md` lists every file name, along with size tips and where to get photos you're allowed to use. Photo credits (needed for Creative Commons photos) go in `js/core/data/photos.js`.
+
 ## Important notes
 
 - **Prices are sample estimates.** Update them in *Settings → Prices* to match your local market before presenting cost figures as real.
@@ -70,3 +75,11 @@ tipidulam/
 ## Adding a recipe
 
 Add an entry to `RECIPES` in `js/core/data/recipes.js`. Ingredient `key`s must exist in `js/core/data/ingredients.js`, and quantities are per 4 servings in that ingredient's unit. Add a new ingredient to the catalog first if needed, including its Filipino/English names in `terms`.
+
+## Design
+
+- **Palette:** fresh green `#047857` (primary) + food amber `#D97706` (accent) on a soft green-white background. Text contrast is 4.5:1 or better.
+- **Type:** Rubik for headings, Nunito Sans for body (Google Fonts).
+- **Style:** minimal, flat surfaces with 1px borders and no heavy shadows. Lucide SVG icons, no emoji.
+- **Layout:** sidebar on desktop; top bar + 5-item bottom nav on mobile. Touch targets are 44px or larger, focus rings are always visible, and animations turn off when the device asks for reduced motion.
+- All colors and sizes are CSS variables at the top of `css/styles.css`. Change `--primary` there to re-theme the whole app.

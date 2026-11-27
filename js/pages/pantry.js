@@ -1,5 +1,7 @@
-import { renderLayout } from '../ui/layout.js';
-import { el, $, select, fmtQty, money, link, toast, emptyState } from '../ui/dom.js';
+import { renderLayout, emptyBlock } from '../ui/layout.js';
+import { el, $, select, fmtQty, money, link, toast, btn } from '../ui/dom.js';
+import { icon } from '../ui/icons.js';
+import { recipeImage, CATEGORY_ICON } from '../ui/recipeVisual.js';
 import { compressImage } from '../ui/image.js';
 import { scanImage } from '../core/services/scanService.js';
 import { getSettings, getCatalog } from '../core/services/settingsService.js';
@@ -20,8 +22,8 @@ function showError(msg) {
 }
 
 // ---------- 1. Photo + scan ----------
-$('photoInput').addEventListener('change', async (e) => {
-  selectedFile = e.target.files[0] || null;
+async function pickFile(file) {
+  selectedFile = file || null;
   showError('');
   $('scanBtn').disabled = !selectedFile;
   if (!selectedFile) return $('preview').classList.add('d-none');
@@ -31,13 +33,28 @@ $('photoInput').addEventListener('change', async (e) => {
   } catch (err) {
     showError(err.message);
   }
+}
+
+$('photoInput').addEventListener('change', (e) => pickFile(e.target.files[0]));
+
+const dz = $('dropzone');
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) pickFile(f);
 });
+dz.tabIndex = 0;
+dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('photoInput').click(); } });
 
 $('scanBtn').addEventListener('click', async () => {
   if (!selectedFile) return;
   showError('');
   $('scanBtn').disabled = true;
   $('scanSpinner').classList.remove('d-none');
+  $('scanLabel').textContent = 'Scanning…';
   try {
     const items = await scanImage(await compressImage(selectedFile));
     if (items.length === 0) showError('No food detected. Try a brighter, closer photo, or add items manually.');
@@ -47,6 +64,7 @@ $('scanBtn').addEventListener('click', async () => {
   } finally {
     $('scanBtn').disabled = false;
     $('scanSpinner').classList.add('d-none');
+    $('scanLabel').textContent = 'Scan photo';
   }
 });
 
@@ -61,15 +79,17 @@ function confirmRow(item = { name: '', qty: 1, unit: 'pc', category: 'other', co
     el('td', {}, select(UNITS, item.unit)),
     el('td', {}, select(CATEGORIES, item.category)),
     el('td', {}, el('input', { className: 'form-control form-control-sm', type: 'date', 'aria-label': 'Expiry date' })),
-    el('td', {}, el('button', { className: 'btn btn-sm btn-outline-danger', textContent: '✕', title: 'Remove row', onclick: () => tr.remove() }))
+    el('td', {}, btn('', { className: 'btn btn-danger-ghost btn-sm btn-icon', iconEl: icon('x', { size: 16 }), ariaLabel: 'Remove row', onclick: () => tr.remove() }))
   );
+  for (const s of tr.querySelectorAll('select')) s.setAttribute('aria-label', s === tr.querySelectorAll('select')[0] ? 'Unit' : 'Category');
   return tr;
 }
 
 function renderConfirm(items) {
   $('confirmBody').replaceChildren(...(items.length ? items.map(confirmRow) : [confirmRow()]));
   $('confirmSection').classList.remove('d-none');
-  $('confirmSection').scrollIntoView({ behavior: 'smooth' });
+  $('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('confirmBody').querySelector('input')?.focus({ preventScroll: true });
 }
 
 $('addRowBtn').addEventListener('click', () => $('confirmBody').append(confirmRow()));
@@ -94,25 +114,35 @@ $('saveBtn').addEventListener('click', () => {
 });
 
 // ---------- 3. Inventory ----------
-function expiryBadge(p) {
+function expiryTag(p) {
   const d = daysLeft(p);
-  if (d === null) return el('span', { className: 'badge text-bg-light border text-body', textContent: 'no expiry' });
-  if (d < 0) return el('span', { className: 'badge text-bg-danger', textContent: 'expired' });
-  if (d <= 3) return el('span', { className: 'badge text-bg-warning', textContent: d === 0 ? 'expires today' : `${d}d left` });
-  return el('span', { className: 'badge text-bg-success', textContent: `${d}d left` });
+  if (d === null) return el('span', { className: 'tag', textContent: 'No expiry' });
+  if (d < 0) return el('span', { className: 'tag tag-danger', textContent: 'Expired' });
+  if (d <= 3) return el('span', { className: 'tag tag-warning', textContent: d === 0 ? 'Today' : `${d}d left` });
+  return el('span', { className: 'tag tag-success', textContent: `${d}d left` });
 }
 
 function renderInventory() {
   const pantry = getPantry();
   $('invCount').textContent = `${pantry.length} item${pantry.length === 1 ? '' : 's'}`;
   const sorted = [...pantry].sort((a, b) => (daysLeft(a) ?? 9999) - (daysLeft(b) ?? 9999) || a.name.localeCompare(b.name));
-  $('inventoryList').replaceChildren(...(sorted.length ? sorted.map((p) => el('li', { className: 'list-group-item d-flex align-items-center gap-2 flex-wrap' }, [
-    el('span', { className: 'fw-semibold text-capitalize me-auto', textContent: p.name }),
-    el('span', { className: 'text-secondary small', textContent: `${fmtQty(p.qty)} ${p.unit}` }),
-    expiryBadge(p),
-    el('button', { className: 'btn btn-sm btn-outline-secondary', textContent: 'Use 1', onclick: () => { consumePantryItem(p.id, 1); syncFromPlan(); render(); } }),
-    el('button', { className: 'btn btn-sm btn-outline-danger', textContent: 'Remove', onclick: () => { removePantryItem(p.id); syncFromPlan(); render(); } })
-  ])) : [el('li', { className: 'list-group-item px-0' }, emptyState('Your pantry is empty. Scan your ref or add items manually.'))]));
+  if (!sorted.length) {
+    $('inventoryList').replaceChildren(el('li', { className: 'border-0 p-0' },
+      emptyBlock('refrigerator', 'Your pantry is empty', 'Scan your ref or add items manually.')));
+    return;
+  }
+  $('inventoryList').replaceChildren(...sorted.map((p) => el('li', { className: 'flex-wrap' }, [
+    el('span', { className: 'chip-icon sm slate' }, icon(CATEGORY_ICON[p.category] || 'shopping-cart', { size: 16 })),
+    el('div', { className: 'row-main' }, [
+      el('div', { className: 'row-title text-capitalize', textContent: p.name }),
+      el('div', { className: 'row-meta', textContent: `${fmtQty(p.qty)} ${p.unit}` })
+    ]),
+    expiryTag(p),
+    el('div', { className: 'd-flex gap-2' }, [
+      btn('Use 1', { className: 'btn btn-ghost btn-sm', iconEl: icon('minus', { size: 14 }), ariaLabel: `Use 1 ${p.unit} of ${p.name}`, onclick: () => { consumePantryItem(p.id, 1); syncFromPlan(); render(); } }),
+      btn('', { className: 'btn btn-danger-ghost btn-sm btn-icon', iconEl: icon('trash-2', { size: 16 }), ariaLabel: `Remove ${p.name}`, onclick: () => { removePantryItem(p.id); syncFromPlan(); render(); } })
+    ])
+  ])));
 }
 
 // ---------- 4. Suggestions ----------
@@ -120,21 +150,27 @@ function renderSuggestions() {
   const s = getSettings();
   const catalog = getCatalog(s);
   const expiringKeys = expiringSoon(3).map((p) => p.key).filter(Boolean);
-  const list = suggestFromPantry(RECIPES, getPantry(), s.staples, { expiringKeys }).slice(0, 6);
-  $('suggestList').replaceChildren(...(list.length ? list.map((sug) => {
+  const list = suggestFromPantry(RECIPES, getPantry(), s.staples, { expiringKeys }).slice(0, 5);
+  if (!list.length) {
+    $('suggestList').replaceChildren(emptyBlock('sparkles', 'No suggestions yet', 'Add items to see what you can cook.'));
+    return;
+  }
+  $('suggestList').replaceChildren(...list.map((sug) => {
     const pct = Math.round(sug.score * 100);
     const missingNames = sug.missing.map((k) => catalog[k].name);
-    return el('a', { className: 'card text-decoration-none recipe-card border', href: link(`recipes.html?r=${sug.recipe.id}`) },
-      el('div', { className: 'card-body py-2' }, [
-        el('div', { className: 'd-flex justify-content-between' }, [
-          el('span', { className: 'fw-semibold text-body', textContent: sug.recipe.name }),
-          el('span', { className: 'small text-secondary', textContent: money(recipeCost(sug.recipe, catalog, s).total) })
+    return el('a', { className: 'suggest-link d-flex gap-3', href: link(`recipes.html?r=${sug.recipe.id}`) }, [
+      recipeImage(sug.recipe, catalog, { iconSize: 18 }),
+      el('div', { className: 'row-main' }, [
+        el('div', { className: 'd-flex justify-content-between gap-2' }, [
+          el('span', { className: 'row-title', textContent: sug.recipe.name }),
+          el('span', { className: 'price small', textContent: money(recipeCost(sug.recipe, catalog, s).total) })
         ]),
-        el('div', { className: 'progress my-1', style: 'height:5px' }, el('div', { className: `progress-bar ${pct === 100 ? 'bg-success' : 'bg-info'}`, style: `width:${pct}%` })),
-        sug.usesExpiring.length ? el('div', { className: 'small text-warning-emphasis', textContent: `Uses soon-to-expire: ${sug.usesExpiring.map((k) => catalog[k].name).join(', ')}` }) : null,
-        el('div', { className: `small ${missingNames.length ? 'text-danger' : 'text-success'}`, textContent: missingNames.length ? `Missing: ${missingNames.join(', ')}` : 'You have everything. Luto na!' })
-      ]));
-  }) : [emptyState('Add items to see what you can cook.')]));
+        el('div', { className: `mini-bar${pct === 100 ? ' full' : ''}` }, el('span', { style: `width:${pct}%` })),
+        sug.usesExpiring.length ? el('div', { className: 'row-meta', style: 'color:var(--accent-text)' }, [icon('clock', { size: 13 }), ` Uses ${sug.usesExpiring.map((k) => catalog[k].name).join(', ')} before it spoils`]) : null,
+        el('div', { className: 'row-meta', textContent: missingNames.length ? `Missing: ${missingNames.join(', ')}` : 'You have everything. Luto na!' })
+      ])
+    ]);
+  }));
 }
 
 function render() {

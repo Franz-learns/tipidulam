@@ -44,7 +44,7 @@ export function toast(message, variant = 'success') {
     box = el('div', { id: 'toastBox', className: 'toast-container position-fixed bottom-0 end-0 p-3' });
     document.body.append(box);
   }
-  const t = el('div', { className: `toast align-items-center text-bg-${variant} border-0`, role: 'status' },
+  const t = el('div', { className: `toast align-items-center text-bg-${variant === 'success' ? 'dark' : variant} border-0`, role: 'status', 'aria-live': 'polite' },
     el('div', { className: 'd-flex' }, [
       el('div', { className: 'toast-body', textContent: message }),
       el('button', { type: 'button', className: 'btn-close btn-close-white me-2 m-auto', 'aria-label': 'Close', onclick: () => t.remove() })
@@ -68,4 +68,12 @@ export function link(href) {
 
 export function emptyState(text) {
   return el('p', { className: 'text-secondary small mb-0', textContent: text });
+}
+
+/** Button with an optional leading icon element. */
+export function btn(label, { className = 'btn btn-ghost btn-sm', iconEl = null, onclick, title, type = 'button', ariaLabel } = {}) {
+  const b = el('button', { type, className, onclick }, [iconEl, label ? el('span', { textContent: label }) : null]);
+  if (title) b.title = title;
+  if (ariaLabel) b.setAttribute('aria-label', ariaLabel);
+  return b;
 }
