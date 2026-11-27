@@ -1,0 +1,12 @@
+{
+  "name": "tipidulam",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TipidUlam: Philippine meal & grocery budget planner (website)",
+  "type": "module",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "engines": { "node": ">=20" }
+}

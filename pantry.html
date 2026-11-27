@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pantry & Scan · TipidUlam</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/styles.css" rel="stylesheet">
+</head>
+<body>
+<header id="app-nav"></header>
+<main class="container py-4" style="max-width: 1100px;">
+  <h1 class="h3 mb-1">Pantry &amp; Scan</h1>
+  <p class="text-secondary mb-4">Take a photo of your ref or pantry. We'll list what's inside so the planner and grocery list use it first.</p>
+
+  <section class="card mb-4"><div class="card-body">
+    <h2 class="h5">1. Take a photo</h2>
+    <input id="photoInput" class="form-control mb-3" type="file" accept="image/*" capture="environment">
+    <img id="preview" class="w-100 rounded mb-3 d-none" alt="Photo preview">
+    <div class="d-flex gap-2 flex-wrap">
+      <button id="scanBtn" class="btn btn-tipid" disabled>
+        <span id="scanSpinner" class="spinner-border spinner-border-sm me-1 d-none"></span>Scan photo
+      </button>
+      <button id="manualBtn" class="btn btn-outline-secondary">Add items manually</button>
+    </div>
+    <div id="scanError" class="alert alert-danger mt-3 d-none" role="alert"></div>
+  </div></section>
+
+  <section id="confirmSection" class="card mb-4 d-none"><div class="card-body">
+    <h2 class="h5">2. Check the items</h2>
+    <p class="small text-secondary">The scan can miss or misread items. Fix names and quantities, add expiry dates, and remove anything wrong. Yellow rows are low-confidence guesses.</p>
+    <div class="table-responsive">
+      <table class="table align-middle confirm-table">
+        <thead><tr><th>Item</th><th>Qty</th><th>Unit</th><th>Category</th><th>Expiry</th><th></th></tr></thead>
+        <tbody id="confirmBody"></tbody>
+      </table>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <button id="addRowBtn" class="btn btn-outline-secondary btn-sm">+ Add row</button>
+      <button id="saveBtn" class="btn btn-tipid btn-sm">Save to pantry</button>
+      <button id="cancelBtn" class="btn btn-link btn-sm">Cancel</button>
+    </div>
+  </div></section>
+
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <section class="card h-100"><div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Your stock</h2><span id="invCount" class="badge text-bg-secondary"></span>
+        </div>
+        <ul id="inventoryList" class="list-group list-group-flush mt-3"></ul>
+      </div></section>
+    </div>
+    <div class="col-lg-5">
+      <section class="card h-100"><div class="card-body">
+        <h2 class="h5">What you can cook</h2>
+        <div id="suggestList" class="d-grid gap-2"></div>
+      </div></section>
+    </div>
+  </div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.9/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="js/pages/pantry.js"></script>
+</body>
+</html>

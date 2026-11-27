@@ -1,0 +1,39 @@
+:root {
+  --tipid-green: #1f7a4d;
+  --tipid-green-dark: #165c3a;
+  --tipid-orange: #f39c33;
+}
+
+body { background: #f6f7f4; }
+
+.bg-tipid { background: var(--tipid-green); }
+
+.btn-tipid {
+  --bs-btn-bg: var(--tipid-green);
+  --bs-btn-border-color: var(--tipid-green);
+  --bs-btn-hover-bg: var(--tipid-green-dark);
+  --bs-btn-hover-border-color: var(--tipid-green-dark);
+  --bs-btn-active-bg: var(--tipid-green-dark);
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-disabled-bg: var(--tipid-green);
+  --bs-btn-disabled-border-color: var(--tipid-green);
+}
+
+.card { border: 0; box-shadow: 0 1px 3px rgba(0, 0, 0, .08); }
+
+.stat .value { font-size: 1.5rem; font-weight: 700; }
+.stat .label { font-size: .8rem; color: #6c757d; text-transform: uppercase; letter-spacing: .03em; }
+
+.meal-type { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: #6c757d; }
+.meal.cooked .meal-name { text-decoration: line-through; color: #6c757d; }
+
+.recipe-card { cursor: pointer; transition: transform .1s; }
+.recipe-card:hover { transform: translateY(-2px); }
+
+#preview { max-height: 280px; object-fit: contain; }
+.confirm-table input, .confirm-table select { min-width: 80px; }
+.conf-low { background: #fff3cd; }
+
+.grocery-item.bought .item-name { text-decoration: line-through; color: #6c757d; }
+.price-input { max-width: 110px; }
