@@ -42,7 +42,7 @@ function effectiveCost(lines, stock, catalog) {
 /**
  * @returns plan { seed, createdAt, startDate, householdSize, budget, days:[{date, meals:[{type, recipeId, name, cost, cooked}]}], totalCost }
  */
-export function generatePlan({ recipes, catalog, settings, pantry = [], startDate, days = 7, seed = Date.now() }) {
+export function generatePlan({ recipes, catalog, settings, pantry = [], startDate, days = 7, seed = Date.now(), budgetFactor = 0.92 }) {
   const rng = seededRandom(seed);
   const stock = buildStock(pantry, catalog);
   const types = MEAL_TYPES.filter((t) => settings.mealTypes.includes(t));
@@ -50,9 +50,9 @@ export function generatePlan({ recipes, catalog, settings, pantry = [], startDat
   const used = new Map(); // recipeId → { lastDay, count }
 
   let slotsLeft = days * types.length;
-  // Aim ~8% under budget: buying whole packs / quarter-kilos costs a bit more
-  // than the exact recipe amounts.
-  let budgetLeft = settings.weeklyBudget * 0.92;
+  // Aim a bit under budget: buying whole packs / quarter-kilos costs more than
+  // the exact recipe amounts. planService tightens this if the list still goes over.
+  let budgetLeft = settings.weeklyBudget * budgetFactor;
   const outDays = [];
 
   for (let d = 0; d < days; d++) {

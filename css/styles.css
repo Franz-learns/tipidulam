@@ -427,3 +427,5 @@ a, button, label[for], .recipe-card, .dropzone, summary { cursor: pointer; }
 .recipe-card:hover .rimg-card.has-photo > img { transform: scale(1.03); }
 .rimg > img { transition: opacity 250ms var(--ease), transform 300ms var(--ease); }
 .photo-credit { font-size: .75rem; color: var(--subtle-fg); margin: 0 0 14px; }
+.chip-check > span > span { padding: 0; border: 0; background: none; border-radius: 0; min-height: 0; font-size: .8rem; }
+.chip-check input:checked + span > span { color: var(--primary) !important; }

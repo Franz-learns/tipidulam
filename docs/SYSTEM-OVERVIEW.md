@@ -13,7 +13,7 @@ Reference for System Analysis & Design documentation (modules, actors, processes
 
 1. **Budget & Household Settings**: weekly budget, household size, rice allowance, staples, local prices
 2. **Meal Planning**: generates a 7-day plan within budget; swap meals; mark meals cooked
-3. **Recipe Catalog**: Filipino recipes with scaled ingredients, cost per household and per person, steps
+3. **Recipe Catalog**: 57 Filipino recipes in 7 categories with scaled ingredients, cost per household and per person, steps
 4. **Pantry / Inventory**: AI photo scan with human verification, manual entry, expiry tracking, consumption
 5. **Grocery List & Spending**: auto-generated list, actual-price entry, budget tracking, transfer to pantry
 6. **Dashboard & Reports**: budget summary, today's meals, expiring items, cook-now suggestions
@@ -92,7 +92,7 @@ User ticks items bought and enters the actual price → spent = actual price (or
 `key, name, terms[] (English + Filipino names), category, unit, price, step (smallest buying amount)`
 
 ### recipe (catalog, read-only)
-`id, name, mealTypes[], servings (4), minutes, withRice, ingredients[{key, qty}], steps[]`
+`id, group (chicken/pork/beef/seafood/vegetable/egg/noodles), name, mealTypes[], servings (4), minutes, withRice, ingredients[{key, qty}], steps[]`
 
 ## API
 

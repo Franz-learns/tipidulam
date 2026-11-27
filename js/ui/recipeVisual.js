@@ -10,8 +10,33 @@ const BY_ID = {
   'sardinas-misua': ['soup', 'indigo'],
   'pancit-bihon': ['wheat', 'amber'],
   'tokwat-baboy': ['flame', 'red'],
-  'corned-beef-guisado': ['flame', 'red']
+  'corned-beef-guisado': ['flame', 'red'],
+  'nilagang-baboy': ['soup', 'amber'],
+  'sinigang-na-isda': ['soup', 'indigo'],
+  'sinigang-na-hipon': ['soup', 'red'],
+  'arroz-caldo': ['soup', 'amber'],
+  'champorado': ['soup', 'slate'],
+  'chicken-sopas': ['soup', 'amber'],
+  'sotanghon-soup': ['soup', 'green'],
+  'misua-patola': ['soup', 'green'],
+  'pancit-canton': ['wheat', 'amber'],
+  'lumpiang-shanghai': ['flame', 'amber'],
+  'lumpiang-gulay': ['leaf', 'amber'],
+  'lechon-kawali': ['flame', 'red'],
+  'chicken-curry': ['flame', 'amber'],
+  'tortang-tuna': ['egg', 'indigo'],
+  'tortang-giniling': ['egg', 'red']
 };
+
+export const GROUPS = [
+  ['chicken', 'Manok', 'drumstick'],
+  ['pork', 'Baboy', 'flame'],
+  ['beef', 'Baka', 'flame'],
+  ['seafood', 'Isda', 'fish'],
+  ['vegetable', 'Gulay', 'leaf'],
+  ['egg', 'Itlog', 'egg'],
+  ['noodles', 'Pansit & Lugaw', 'soup']
+];
 
 const BY_CATEGORY = {
   meat: ['drumstick', 'red'],

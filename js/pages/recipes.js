@@ -1,7 +1,7 @@
 import { renderLayout, emptyBlock } from '../ui/layout.js';
 import { el, $, money, fmtQty, cap } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
-import { recipeVisual, recipeImage, photoFor } from '../ui/recipeVisual.js';
+import { recipeVisual, recipeImage, photoFor, GROUPS } from '../ui/recipeVisual.js';
 import { getSettings, getCatalog } from '../core/services/settingsService.js';
 import { getPantry } from '../core/services/pantryService.js';
 import { recipeCost } from '../core/engine/costing.js';
@@ -28,12 +28,30 @@ function matchesSearch(r, q) {
   return r.ingredients.some((i) => catalog[i.key]?.terms.some((t) => termMatches(t, q) || t.includes(ql)));
 }
 
+let activeGroup = new URLSearchParams(location.search).get('group') || '';
+
+function renderChips() {
+  const counts = {};
+  for (const r of RECIPES) counts[r.group] = (counts[r.group] || 0) + 1;
+  const chip = (value, label, iconName, count) => {
+    const input = el('input', { type: 'radio', name: 'group', value, checked: activeGroup === value,
+      onchange: () => { activeGroup = value; renderGrid(); } });
+    return el('label', { className: 'chip-check' }, [input, el('span', {}, [
+      iconName ? icon(iconName, { size: 15 }) : null, label, el('span', { className: 'text-secondary fw-semibold', textContent: String(count) })
+    ])]);
+  };
+  $('groupChips').replaceChildren(
+    chip('', 'Lahat', null, RECIPES.length),
+    ...GROUPS.filter(([g]) => counts[g]).map(([g, label, ic]) => chip(g, label, ic, counts[g]))
+  );
+}
+
 function renderGrid() {
   const q = $('search').value.trim();
   const type = $('filterType').value;
   const sort = $('sortBy').value;
   const list = RECIPES
-    .filter((r) => (!type || r.mealTypes.includes(type)) && matchesSearch(r, q))
+    .filter((r) => (!type || r.mealTypes.includes(type)) && (!activeGroup || r.group === activeGroup) && matchesSearch(r, q))
     .sort((a, b) => sort === 'name' ? a.name.localeCompare(b.name)
       : sort === 'ready' ? readyScore(b) - readyScore(a) || costs.get(a.id).total - costs.get(b.id).total
         : costs.get(a.id).total - costs.get(b.id).total);
@@ -110,6 +128,7 @@ function openRecipe(id) {
 }
 
 for (const id of ['search', 'filterType', 'sortBy']) $(id).addEventListener('input', renderGrid);
+renderChips();
 renderGrid();
 
 const requested = new URLSearchParams(location.search).get('r');

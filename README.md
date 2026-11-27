@@ -10,7 +10,7 @@ Plan a week of Filipino meals within your budget, scan your ref to track what yo
 |---|---|
 | **Dashboard** (`index.html`) | Budget vs. spent vs. still-to-buy, today's meals, items expiring soon, what you can cook now |
 | **Meal Plan** (`planner.html`) | Generates 7 days of meals within your weekly budget; uses pantry items first; no back-to-back repeats; swap any meal; mark meals cooked (deducts from pantry) |
-| **Recipes** (`recipes.html`) | 21 Filipino recipes with cost for your household, cost per person, ingredients, steps, and a "ready to cook" badge |
+| **Recipes** (`recipes.html`) | 57 Filipino recipes (manok, baboy, baka, isda, gulay, itlog, pansit & lugaw) with cost for your household, cost per person, ingredients, steps, category filters and a "ready to cook" badge |
 | **Pantry & Scan** (`pantry.html`) | Take a photo of the ref → AI lists items → you confirm/edit → saved to pantry with expiry dates; suggestions for what to cook |
 | **Grocery List** (`grocery.html`) | Auto-built from the plan minus your pantry, grouped by category; tick bought, enter actual prices, move bought items into the pantry, copy the list to share |
 | **Settings** (`settings.html`) | Household size, budget, rice per person, staples, local prices, backup/restore, reset |
@@ -74,7 +74,7 @@ Drop a photo named after the recipe into `images/recipes/`, e.g. `images/recipes
 
 ## Adding a recipe
 
-Add an entry to `RECIPES` in `js/core/data/recipes.js`. Ingredient `key`s must exist in `js/core/data/ingredients.js`, and quantities are per 4 servings in that ingredient's unit. Add a new ingredient to the catalog first if needed, including its Filipino/English names in `terms`.
+Add an entry to `RECIPES` in `js/core/data/recipes.js` (give it a `group` for the category filter). Ingredient `key`s must exist in `js/core/data/ingredients.js`, and quantities are per 4 servings in that ingredient's unit. Add a new ingredient to the catalog first if needed, including its Filipino/English names in `terms`.
 
 ## Design
 
@@ -83,3 +83,12 @@ Add an entry to `RECIPES` in `js/core/data/recipes.js`. Ingredient `key`s must e
 - **Style:** minimal, flat surfaces with 1px borders and no heavy shadows. Lucide SVG icons, no emoji.
 - **Layout:** sidebar on desktop; top bar + 5-item bottom nav on mobile. Touch targets are 44px or larger, focus rings are always visible, and animations turn off when the device asks for reduced motion.
 - All colors and sizes are CSS variables at the top of `css/styles.css`. Change `--primary` there to re-theme the whole app.
+
+## Troubleshooting the scan
+
+| Message | Cause | Fix |
+|---|---|---|
+| "Load failed" / "Failed to fetch" / "can't run the AI scan" | The page was opened from Live Server, GitHub Pages, a file, or another computer's local address, so there's no API to call | Open your **Vercel link** (or `vercel dev` at `localhost:3000`). Use `?mock=1` for demo mode |
+| "Could not reach the scan service" | Internet dropped, or the Vercel deployment isn't working | Check your connection; open `/api/health` on your site |
+| "Server is missing GEMINI_API_KEY" | Key not set in Vercel | Add it under Settings → Environment Variables, then **redeploy** |
+| "Model … was not found" | Model name changed | Set `GEMINI_MODEL` to a current Gemini Flash model |
