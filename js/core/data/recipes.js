@@ -4,7 +4,16 @@
 // withRice: true → the planner adds rice for the household automatically.
 // Silog meals list rice as an ingredient instead (sinangag is part of the dish).
 
+import breakfastChicken from './details/breakfast-chicken.js';
+import porkBeef from './details/pork-beef.js';
+import seafood from './details/seafood.js';
+import vegNoodlesEgg from './details/veg-noodles-egg.js';
+
 const ing = (key, qty) => ({ key, qty });
+
+// Detailed, step-by-step instructions and tips (written for 4 servings)
+// live in ./details/*.js and replace the short steps below.
+const DETAILS = { ...breakfastChicken, ...porkBeef, ...seafood, ...vegNoodlesEgg };
 
 export const RECIPES = [
   // ---------- Breakfast ----------
@@ -311,5 +320,11 @@ export const RECIPES = [
     steps: ['Sauté garlic, onion, giniling and finely diced potatoes until cooked; cool slightly.', 'Mix with beaten eggs and salt.', 'Pour into a hot oiled pan; cook until set, flip and brown the other side.']
   }
 ];
+
+for (const r of RECIPES) {
+  const d = DETAILS[r.id];
+  if (d?.steps?.length) r.steps = d.steps;
+  r.tips = d?.tips || [];
+}
 
 export const RECIPES_BY_ID = Object.fromEntries(RECIPES.map((r) => [r.id, r]));

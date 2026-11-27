@@ -121,8 +121,15 @@ function openRecipe(id) {
         : l.isStaple ? el('span', { className: 'tag', textContent: 'Staple' }) : ''),
       el('td', { className: 'text-end price', textContent: l.isStaple ? '—' : money(l.cost) })
     ])))),
-    el('h3', { className: 'section-title' }, 'Steps'),
-    el('ol', { className: 'steps' }, r.steps.map((s) => el('li', {}, el('span', { textContent: s }))))
+    el('h3', { className: 'section-title' }, [
+      'Steps',
+      el('span', { className: 'row-meta fw-normal ms-auto', textContent: `Written for 4 servings${settings.householdSize !== 4 ? '. Adjust water and seasoning to taste' : ''}` })
+    ]),
+    el('ol', { className: 'steps' }, r.steps.map((s) => el('li', {}, el('span', { textContent: s })))),
+    r.tips?.length ? el('div', { className: 'tips-box' }, [
+      el('h3', { className: 'section-title mb-2' }, [el('span', { className: 'chip-icon sm amber' }, icon('sparkles', { size: 16 })), 'Tips']),
+      el('ul', { className: 'mb-0' }, r.tips.map((t) => el('li', { textContent: t })))
+    ]) : null
   ].filter(Boolean));
   window.bootstrap.Modal.getOrCreateInstance($('recipeModal')).show();
 }

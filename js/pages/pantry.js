@@ -3,7 +3,7 @@ import { el, $, select, fmtQty, money, link, toast, btn } from '../ui/dom.js';
 import { icon } from '../ui/icons.js';
 import { recipeImage, CATEGORY_ICON } from '../ui/recipeVisual.js';
 import { compressImage } from '../ui/image.js';
-import { scanImage } from '../core/services/scanService.js';
+import { scanImage, scanErrorText } from '../core/services/scanService.js';
 import { getSettings, getCatalog } from '../core/services/settingsService.js';
 import { getPantry, addPantryItems, consumePantryItem, removePantryItem, daysLeft, expiringSoon } from '../core/services/pantryService.js';
 import { syncFromPlan } from '../core/services/groceryService.js';
@@ -16,9 +16,18 @@ renderLayout('pantry');
 
 let selectedFile = null;
 
-function showError(msg) {
-  $('scanError').textContent = msg;
-  $('scanError').classList.toggle('d-none', !msg);
+function showError(msg, { offerManual = false } = {}) {
+  const box = $('scanError');
+  box.replaceChildren();
+  box.classList.toggle('d-none', !msg);
+  if (!msg) return;
+  box.append(el('div', { className: 'd-flex gap-2 align-items-start' }, [icon('circle-alert', { size: 18 }), el('span', { textContent: msg })]));
+  if (offerManual) {
+    box.append(btn('Add items manually', {
+      className: 'btn btn-sm btn-light mt-2', iconEl: icon('plus', { size: 15 }),
+      onclick: () => { showError(''); renderConfirm([]); }
+    }));
+  }
 }
 
 // ---------- 1. Photo + scan ----------
@@ -57,10 +66,13 @@ $('scanBtn').addEventListener('click', async () => {
   $('scanLabel').textContent = 'Scanning…';
   try {
     const items = await scanImage(await compressImage(selectedFile));
-    if (items.length === 0) showError('No food detected. Try a brighter, closer photo, or add items manually.');
-    renderConfirm(items);
+    if (items.length === 0) {
+      showError("We didn't spot any food in that photo. Try a brighter, closer photo, or add your items manually.", { offerManual: true });
+    } else {
+      renderConfirm(items);
+    }
   } catch (err) {
-    showError(err.message);
+    showError(scanErrorText(err), { offerManual: true });
   } finally {
     $('scanBtn').disabled = false;
     $('scanSpinner').classList.add('d-none');

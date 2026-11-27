@@ -48,7 +48,11 @@ The scan works with any of these. Set one or more keys; if the first one fails, 
 
 - `AI_PROVIDER=openai` (or `anthropic` / `gemini`) chooses which to try first.
 - `GEMINI_MODEL`, `OPENAI_MODEL`, `ANTHROPIC_MODEL` override the model if a name changes.
-- **Debugging:** open `/api/health?test=1` on your site. It shows each provider's exact result, e.g. `"API key not valid"` or `"quota exceeded"`. The scan error in the app also shows these details.
+- **Debugging:** the app shows short, friendly scan errors on purpose, which is good for demos. To see the technical reason:
+  - open `/api/health?test=1` on your site for each provider's exact result;
+  - add `?debug=1` to the page address, e.g. `pantry.html?debug=1`, to show the reason next to the error;
+  - set `SCAN_DEBUG=1` in Vercel to include provider details in API responses;
+  - full errors are always in Vercel → your project → **Logs**.
 
 ## Project structure
 
@@ -63,7 +67,7 @@ tipidulam/
 │   └── health.js             GET  /api/health(?test=1) setup check + live test
 ├── js/
 │   ├── core/                 ← NO DOM CODE: port this folder to Angular as services
-│   │   ├── data/             ingredients.js (catalog + sample prices), recipes.js
+│   │   ├── data/             ingredients.js (catalog + sample prices), recipes.js, details/ (step-by-step + tips)
 │   │   ├── engine/           pure logic: planner, costing, grocery, matcher, stock, suggest
 │   │   └── services/         storage, settings, pantry, plan, grocery, scan
 │   ├── ui/                   layout (navbar), dom helpers, image compression
@@ -87,7 +91,7 @@ Drop a photo named after the recipe into `images/recipes/`, e.g. `images/recipes
 
 ## Adding a recipe
 
-Add an entry to `RECIPES` in `js/core/data/recipes.js` (give it a `group` for the category filter). Ingredient `key`s must exist in `js/core/data/ingredients.js`, and quantities are per 4 servings in that ingredient's unit. Add a new ingredient to the catalog first if needed, including its Filipino/English names in `terms`.
+Add an entry to `RECIPES` in `js/core/data/recipes.js` (give it a `group` for the category filter). Detailed steps and tips go in `js/core/data/details/*.js` under the same recipe id, written for 4 servings. Ingredient `key`s must exist in `js/core/data/ingredients.js`, and quantities are per 4 servings in that ingredient's unit. Add a new ingredient to the catalog first if needed, including its Filipino/English names in `terms`.
 
 ## Design
 
